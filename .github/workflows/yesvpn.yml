@@ -1,0 +1,39 @@
+name: Auto Fetch YesVPN Nodes
+
+on:
+  schedule:
+    - cron: '0 6 * * *' # 每天北京时间 14 点自动运行抓取
+  workflow_dispatch:    # 支持手动点击运行
+
+permissions:
+  contents: write       # 赋予机器人写入仓库的权限
+
+jobs:
+  run-yesvpn:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Run Script
+        # 直接运行你的脚本，它会生成 nodes_vless.txt
+        run: python yes.py
+
+      - name: Generate Base64 Subscription
+        # 这一步利用 Linux 原生命令，自动把生成的 txt 转换成 Base64 订阅文件
+        run: |
+          base64 -w 0 nodes_vless.txt > yesvpn_sub_base64.txt
+
+      - name: Commit and Push Subscriptions
+        # 将最新的节点文件自动提交到你的 GitHub 仓库
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add nodes_vless.txt yesvpn_sub_base64.txt
+          git commit -m "Auto update YesVPN nodes [skip ci]" || echo "No changes to commit"
+          git push
