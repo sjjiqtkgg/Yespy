@@ -1,8 +1,8 @@
 name: Auto Fetch YesVPN Nodes
 
+# 触发条件
 on:
-  schedule:
-  workflow_dispatch:    # 支持手动点击运行
+  workflow_dispatch:        # 仅保留这一行，代表只允许在网页端手动点击触发
 
 permissions:
   contents: write       # 赋予机器人写入仓库的权限
